@@ -59,6 +59,7 @@ def load_patient_data(filepath):
         with open(filepath, 'r') as file:
             return json.load(file)
     except FileNotFoundError:
+        # FIX: Added try/except block to catch FileNotFoundError
         print("File not found!")
         sys.exit(1)
 
@@ -95,18 +96,15 @@ def clean_patient_data(patients):
         # BUG: Wrong comparison operator (= vs ==)
         # FIX: Change to >= to correctly fliter patients under 18 out
         if patient['age'] >= 18:
-            # BUG: Logic error - keeps patients under 18 instead of filtering them out
+            # BUG: Duplicates were not being removed correctly
+            # FIX: Use a tuple of sorted items for checking uniqueness
             patient_tuple = tuple(sorted(patient.items()))
-            # FIX: Duplicates should be removed here
             if patient_tuple not in seen:
                 seen.add(patient_tuple)
                 cleaned_patients.append(patient)
     
     # BUG: Missing return statement for empty list
-    if not cleaned_patients:
-        print("The list is empty!")
-        return None
-    
+    # FIX: Return empty list instead of None
     return cleaned_patients
 
 def main():
@@ -128,7 +126,7 @@ def main():
     print("Cleaned Patient Data:")
     for patient in cleaned_patients:
         # BUG: Using 'name' key but we changed it to 'nage'
-        print(f"Name: {patient['name']}, Age: {patient['age']}, Diagnosis: {patient['diagnosis']}")
+        print(f"Name: {patient.get('name')}, Age: {patient.get('age')}, Diagnosis: {patient.get('diagnosis')}")
     
     # Return the cleaned data (useful for testing)
     return cleaned_patients
